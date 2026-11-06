@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
+<title>Escapada Hochschwab 2027</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: a single column on an alpine-map ground. Header, then the map beside the week strip, then day sheets, the hike, the budget calculator and the to-do list. */
+:root{
+  --bg:#eef2ef; --surface:#ffffff; --ink:#17201c; --muted:#596862; --line:#d3dcd7;
+  --fir:#2c5a49; --fir-soft:#dbe8e1; --marker:#c3132f; --warn:#9a5a08; --warn-soft:#f7ead6;
+  --company:#8b9792; --hike:#3d7f3a; --car:#c3132f; --taxi:#9a5a08; --relief:#e3e9e5;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-sign:"Big Shoulders Display","Barlow Condensed","Arial Narrow",sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  /* trail-sign yellow is a physical object: same in both themes */
+  --sign:#f4c41f; --sign-ink:#141414; --pole:#8d9599;
+  --sky-top:#f3c9a0; --sky-mid:#f6e2c8; --sky-low:#d9e6ea; --sun:#fff3dc;
+  --r1:#b9c7cf; --r2:#93a8b4; --r3:#5f7c78; --r4:#365a4c; --snow:#ffffff; --stars:0;
+  --hero-ink:#17201c; --topo:#c9d6cf;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#19211e; --ink:#e5ece8; --muted:#9aaaa3; --line:#2c3833;
+  --fir:#86c6aa; --fir-soft:#203229; --marker:#ff5d70; --warn:#e9a650; --warn-soft:#33281a;
+  --company:#6f7c77; --hike:#86cc7f; --car:#ff5d70; --taxi:#e9a650; --relief:#1d2623;
+  --sky-top:#070c16; --sky-mid:#111b2c; --sky-low:#1f2d3c; --sun:#e9eef5;
+  --r1:#2b394a; --r2:#223040; --r3:#1a2a2b; --r4:#14211d; --snow:#c9d4de; --stars:1;
+  --hero-ink:#eef3f0; --topo:#25322d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#19211e; --ink:#e5ece8; --muted:#9aaaa3; --line:#2c3833;
+  --fir:#86c6aa; --fir-soft:#203229; --marker:#ff5d70; --warn:#e9a650; --warn-soft:#33281a;
+  --company:#6f7c77; --hike:#86cc7f; --car:#ff5d70; --taxi:#e9a650; --relief:#1d2623;
+  --sky-top:#070c16; --sky-mid:#111b2c; --sky-low:#1f2d3c; --sun:#e9eef5;
+  --r1:#2b394a; --r2:#223040; --r3:#1a2a2b; --r4:#14211d; --snow:#c9d4de; --stars:1;
+  --hero-ink:#eef3f0; --topo:#25322d; color-scheme:dark}
+
+*{box-sizing:border-box}
+
+/* hero: sky, ridgelines, signpost */
+.hero{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 48%,var(--sky-low) 100%);color:var(--hero-ink)}
+.hero-stars{position:absolute;inset:0;width:100%;height:100%;opacity:var(--stars);pointer-events:none}
+.hero-ridges{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:260px;display:block;pointer-events:none}
+.hero-in{position:relative;max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:44px 230px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:end}
+.hero-in > div{min-width:0}
+@media (max-width:760px){.hero-in{grid-template-columns:minmax(0,1fr);padding-block:32px 200px}.hero h1{font-size:clamp(2.6rem,13vw,4.4rem)}}
+.hero-kicker{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.16em;font-size:.92rem;opacity:.8}
+.hero h1{font-family:var(--f-sign);font-weight:900;font-size:clamp(3.4rem,11vw,7.4rem);line-height:.84;letter-spacing:-.01em;text-transform:uppercase;margin:10px 0 16px}
+.hero h1 span{display:block;font-size:.42em;letter-spacing:.06em;font-weight:800;margin-top:.25em}
+.hero .lede{max-width:52ch}
+.hero .facts{margin-top:14px}
+.post{position:relative;display:flex;flex-direction:column;gap:9px;padding-left:22px;filter:drop-shadow(0 3px 0 rgba(0,0,0,.18))}
+.post::before{content:"";position:absolute;left:0;top:-14px;bottom:-240px;width:12px;border-radius:3px;background:linear-gradient(90deg,var(--pole),#c5cbcd 45%,var(--pole))}
+.plate{align-self:flex-start;background:var(--sign);color:var(--sign-ink);border:2px solid var(--sign-ink);border-radius:3px;padding:6px 14px;font-family:var(--f-sign);font-weight:800;text-transform:uppercase;line-height:1.05;font-size:1.05rem}
+.plate small{display:block;font-family:var(--f-body);font-weight:700;font-size:.78rem;text-transform:none}
+.sign{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;background:var(--sign);color:var(--sign-ink);padding:8px 34px 8px 14px;min-width:270px;clip-path:polygon(0 0,calc(100% - 20px) 0,100% 50%,calc(100% - 20px) 100%,0 100%);font-family:var(--f-sign);font-weight:800;font-size:1.25rem;text-transform:uppercase;line-height:1}
+.sign .gz{font-family:var(--f-body);font-weight:700;font-size:.9rem;text-transform:none;white-space:nowrap}
+.sign .marker{font-size:.78rem}
+@media (max-width:420px){.sign{min-width:0;font-size:1.1rem}}
+
+/* section sign labels */
+.sl{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:var(--sign);color:var(--sign-ink);font-family:var(--f-sign);font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:1rem;line-height:1;padding:6px 26px 6px 10px;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 50%,calc(100% - 14px) 100%,0 100%)}
+.sl .marker{font-size:.7rem}
+
+/* topo contours */
+.topo{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.has-topo{position:relative;overflow:hidden}
+.has-topo > :not(.topo){position:relative}
+
+/* footer ridge */
+.ridge-foot{display:block;width:100%;height:120px}
+.berg{font-family:var(--f-sign);font-weight:900;font-size:2.2rem;text-transform:uppercase;color:var(--fir);line-height:1}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px;display:flex;flex-direction:column;gap:40px}
+h1,h2,h3{font-family:var(--f-display);font-weight:700;line-height:1.08;text-wrap:balance;margin:0;letter-spacing:.005em}
+h1{font-size:clamp(2.3rem,6vw,3.6rem)}
+h2{font-size:1.75rem}
+h3{font-size:1.25rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-display);font-weight:600;font-size:.9rem;text-transform:uppercase;letter-spacing:.12em;color:var(--fir)}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--fir);text-underline-offset:2px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--marker);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-direction:column;gap:14px}
+.lede{max-width:62ch;font-size:1.05rem}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:.95rem}
+.facts span b{font-family:var(--f-display);font-size:1.15rem;font-weight:600;margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--fir-soft);color:var(--fir)}
+.chip.tbd{background:var(--warn-soft);color:var(--warn)}
+.chip.co{background:var(--relief);color:var(--muted)}
+
+/* trail marker: Austrian red-white-red */
+.marker{display:inline-flex;vertical-align:middle;border-radius:2px;overflow:hidden;border:1px solid var(--line);font-family:var(--f-display);font-weight:700;font-size:.82rem;line-height:1}
+.marker i{display:block;width:7px;background:#c3132f}
+.marker b{background:#fff;color:#17201c;padding:3px 6px}
+
+/* overview: map + week */
+.overview{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:820px){.overview{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.mapbox > svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend svg{flex:none}
+.inset-title{font-family:var(--f-display);font-weight:600;font-size:1rem;margin:16px 0 6px}
+
+.week{display:flex;flex-direction:column;gap:0}
+.wk{display:grid;grid-template-columns:62px minmax(0,1fr);gap:14px;padding:12px 0;border-top:1px solid var(--line)}
+.wk:first-child{border-top:0;padding-top:0}
+.wk .d{font-family:var(--f-display);line-height:1}
+.wk .d b{display:block;font-size:1.9rem;font-weight:700}
+.wk .d span{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.wk .t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.wk .t h3{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.wk.company .d b,.wk.company h3{color:var(--company)}
+.wk.company .t p{color:var(--muted)}
+
+/* day sheets */
+.days{display:flex;flex-direction:column;gap:18px}
+.sec-head{display:flex;flex-direction:column;gap:6px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,290px);gap:24px}
+@media (max-width:820px){.day{grid-template-columns:1fr}}
+.day-h{display:flex;align-items:center;gap:16px;grid-column:1/-1;padding-bottom:14px;border-bottom:2px solid var(--line)}
+.day-h > div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.dn{font-family:var(--f-sign);font-weight:900;font-size:4.2rem;line-height:.8;color:var(--fir);font-variant-numeric:tabular-nums}
+.dn small{display:block;font-size:.26em;font-weight:800;letter-spacing:.12em;text-transform:uppercase;text-align:center;margin-top:4px}
+.ic{display:inline-flex;gap:6px;margin-top:4px}
+.ic svg{width:22px;height:22px;flex:none}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:58px 18px minmax(0,1fr);gap:10px;position:relative}
+.steps .tm{font-variant-numeric:tabular-nums;font-weight:700;font-size:.92rem;padding-top:1px;text-align:right}
+.steps .dot{position:relative}
+.steps .dot::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--line)}
+.steps li:first-child .dot::before{top:9px}
+.steps li:last-child .dot::before{bottom:calc(100% - 9px)}
+.steps .dot::after{content:"";position:absolute;left:3px;top:4px;width:12px;height:12px;border-radius:50%;background:var(--surface);border:2px solid var(--k,var(--fir))}
+.steps .bd{padding-bottom:14px;min-width:0}
+.steps .bd b{display:block}
+.steps .bd small{display:block;color:var(--muted);font-size:.86rem}
+.steps li.car{--k:var(--car)} .steps li.taxi{--k:var(--taxi)} .steps li.hike{--k:var(--hike)} .steps li.co{--k:var(--company)}
+.side{display:flex;flex-direction:column;gap:12px;font-size:.92rem}
+.note{border-radius:8px;padding:12px 14px;background:var(--relief)}
+.note.warn{background:var(--warn-soft)}
+.note.warn strong{color:var(--warn)}
+.note strong{display:block;font-family:var(--f-display);font-size:1.05rem;font-weight:600;margin-bottom:2px}
+
+/* hike */
+.hike{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+@media (max-width:820px){.hike{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat b{display:block;font-family:var(--f-display);font-size:1.9rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.82rem;color:var(--muted)}
+.profile svg{width:100%;height:auto;display:block}
+
+/* budget */
+.budget{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:24px;align-items:start}
+@media (max-width:860px){.budget{grid-template-columns:1fr}}
+.controls{display:flex;flex-wrap:wrap;gap:14px 28px;margin-bottom:16px}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl label,.ctl .lab{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+.seg button{font:inherit;font-size:.92rem;border:0;background:transparent;color:var(--ink);padding:7px 13px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--fir);color:var(--surface);font-weight:700}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.76rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+td.r,th.r{text-align:right;white-space:nowrap}
+td small{display:block;color:var(--muted);font-size:.8rem}
+tr.grp td{font-family:var(--f-display);font-weight:600;font-size:1.02rem;padding-top:16px;color:var(--fir);border-bottom:1px solid var(--line)}
+tr.off{display:none}
+input.u{width:74px;font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.totals{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);display:flex;flex-direction:column;gap:14px}
+.big{font-family:var(--f-display);font-weight:700;font-size:3.2rem;line-height:1;font-variant-numeric:tabular-nums}
+.pp{font-family:var(--f-display);font-weight:600;font-size:1.6rem;line-height:1;font-variant-numeric:tabular-nums;color:var(--fir)}
+.scen{display:grid;grid-template-columns:auto auto auto;gap:6px 14px;font-size:.88rem;font-variant-numeric:tabular-nums}
+.scen .h{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+.scen .r{text-align:right}
+.scen .cur{font-weight:700;color:var(--fir)}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--relief)}
+.bar i{display:block;height:100%}
+.barleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--muted)}
+.barleg span{display:inline-flex;align-items:center;gap:5px}
+.barleg span::before{content:"";width:9px;height:9px;border-radius:2px;background:var(--c)}
+
+/* todo */
+.todo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 28px;list-style:none;margin:0;padding:0}
+@media (max-width:700px){.todo{grid-template-columns:1fr}}
+.todo li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.todo li::before{content:"";width:14px;height:14px;border:2px solid var(--fir);border-radius:3px;margin-top:4px}
+.todo b{display:block}
+.todo small{color:var(--muted);font-size:.86rem}
+
+.sources{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.sources ul{margin:0;padding-left:18px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 28px}
+@media (max-width:700px){.sources ul{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <svg class="hero-stars" id="stars" aria-hidden="true"></svg>
+  <svg class="hero-ridges" id="ridges" viewBox="0 0 1440 260" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
+  <div class="hero-in">
+    <div>
+      <div class="hero-kicker">Offsite ecosio · Steiermark · abril 2027</div>
+      <h1>Escapada<br>Hochschwab<span>14 – 17 abril 2027</span></h1>
+      <p class="lede">Del offsite en Bad Waltersdorf a los Alpes de Estiria: taxi al aeropuerto de Graz, coche por el Grüner See hasta Der Bodenbauer, ruta al Sackwiesensee y vuelta a Viena para trabajar el viernes en la oficina.</p>
+      <div class="facts">
+        <span><b class="num">8</b>personas</span>
+        <span><b class="num">~310</b>km en coche</span>
+        <span><b class="num">+650</b>m de subida</span>
+        <span><b class="num">1</b>noche en Bodenbauer</span>
+      </div>
+    </div>
+    <div class="post" aria-label="Indicador de senderismo en Bodenbauer">
+      <div class="plate">Bodenbauer<small>884 m</small></div>
+      <div class="sign"><span>Sackwiesensee</span><span class="gz">2¼ h</span><span class="marker"><i></i><b>840</b><i></i></span></div>
+      <div class="sign"><span>Häuslalm</span><span class="gz">~1½ h</span><span class="marker"><i></i><b>840</b><i></i></span></div>
+      <div class="sign"><span>Wien</span><span class="gz">170 km</span><span></span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section class="overview">
+  <div class="panel mapbox">
+    <div class="sl" style="margin-bottom:12px">Ruta</div>
+    <svg id="map" viewBox="0 0 540 610" role="img" aria-label="Mapa esquemático: Viena, Bad Waltersdorf, aeropuerto de Graz, Grüner See, Bodenbauer y vuelta a Viena"></svg>
+    <div class="inset-title">Zoom: Hochschwab</div>
+    <svg id="inset" viewBox="0 0 540 400" role="img" aria-label="Detalle de la zona del Hochschwab: Grüner See, Bodenbauer y Sackwiesensee"></svg>
+    <div class="legend">
+      <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--company)" stroke-width="3" stroke-dasharray="4 4"/></svg>Empresa (bus)</span>
+      <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--taxi)" stroke-width="3" stroke-dasharray="1 5" stroke-linecap="round"/></svg>Taxi</span>
+      <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--car)" stroke-width="3.5"/></svg>Coche de alquiler</span>
+      <span><svg width="26" height="8"><line x1="1" y1="4" x2="25" y2="4" stroke="var(--hike)" stroke-width="3" stroke-dasharray="6 3"/></svg>A pie</span>
+    </div>
+    <p class="muted" style="font-size:.8rem;margin-top:8px">Mapa esquemático; trazados y distancias por carretera aproximados. Posición del Sackwiesensee aproximada.</p>
+  </div>
+
+  <div class="panel">
+    <div class="sl" style="margin-bottom:16px">La semana</div>
+    <div class="week">
+      <div class="wk company"><div class="d"><b>12</b><span>lun</span></div><div class="t"><h3>Vuelo a Viena + bus al spa <span class="chip co">empresa</span></h3><p>Cada uno desde VLC, SVQ, MAD o GRX. Bus de ecosio Viena → Spa Resort Styria.</p></div></div>
+      <div class="wk company"><div class="d"><b>13</b><span>mar</span></div><div class="t"><h3>Offsite <span class="chip co">empresa</span></h3><p>Spa Resort Styria, Bad Waltersdorf.</p></div></div>
+      <div class="wk"><div class="d"><b>14</b><span>mié</span></div><div class="t"><h3>Fin offsite → Hochschwab <span class="chip tbd">hora fin por confirmar</span></h3><p>Taxi al aeropuerto de Graz, coche, Grüner See si da tiempo, noche en Der Bodenbauer.</p></div></div>
+      <div class="wk"><div class="d"><b>15</b><span>jue</span></div><div class="t"><h3>Sackwiesensee → Viena <span class="chip tbd">pedir día libre</span></h3><p>Ruta por la mañana, comida en Bodenbauer, coche a Viena y devolución.</p></div></div>
+      <div class="wk"><div class="d"><b>16</b><span>vie</span></div><div class="t"><h3>Oficina de Viena</h3><p>Opción A: vuelo por la tarde. Opción B: otra noche en Viena.</p></div></div>
+      <div class="wk"><div class="d"><b>17</b><span>sáb</span></div><div class="t"><h3>Vuelo a casa <span class="chip tbd">solo opción B</span></h3><p>VIE → VLC / SVQ / MAD / GRX.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="days">
+  <div class="sec-head"><div class="sl">Día a día</div><h2>La extensión, hora a hora</h2><p class="muted">Horas orientativas. Parto de que el offsite acaba hacia las 13:00 del miércoles; si acaba más tarde, se quita el Grüner See.</p></div>
+
+  <article class="day">
+    <div class="day-h"><div class="dn">14<small>mié</small></div><div><div class="eyebrow">Miércoles 14 de abril</div><h3 style="font-size:1.6rem">Spa → Graz → Grüner See → Bodenbauer</h3><div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" data-ic="taxi"></svg><svg viewBox="0 0 24 24" data-ic="car"></svg><svg viewBox="0 0 24 24" data-ic="boot"></svg><svg viewBox="0 0 24 24" data-ic="bed"></svg></div></div></div>
+    <ol class="steps">
+      <li class="co"><span class="tm">13:00</span><span class="dot"></span><div class="bd"><b>Fin del offsite</b><small>Check-out en Spa Resort Styria</small></div></li>
+      <li class="taxi"><span class="tm">13:30</span><span class="dot"></span><div class="bd"><b>Taxi al aeropuerto de Graz (GRZ)</b><small>~65 km · ~50 min. Con 8 personas y maletas: 2 taxis o un minibús.</small></div></li>
+      <li class="car"><span class="tm">14:30</span><span class="dot"></span><div class="bd"><b>Recoger coche(s) en GRZ</b><small>Allí están Sixt, Hertz, Europcar, Avis, Enterprise, Buchbinder…</small></div></li>
+      <li class="car"><span class="tm">14:50</span><span class="dot"></span><div class="bd"><b>Conducir al Grüner See (Tragöß)</b><small>~85 km · ~1 h 10 por la S35 y Bruck an der Mur</small></div></li>
+      <li class="hike"><span class="tm">16:00</span><span class="dot"></span><div class="bd"><b>Vuelta al lago a pie</b><small>~1 h. Parking 6 €/día por coche, se paga en la oficina de turismo del parking.</small></div></li>
+      <li class="car"><span class="tm">17:00</span><span class="dot"></span><div class="bd"><b>Conducir a Der Bodenbauer</b><small>~50 km · ~50 min por Bruck, Kapfenberg, Thörl y St. Ilgen</small></div></li>
+      <li><span class="tm">17:50</span><span class="dot"></span><div class="bd"><b>Check-in y cena en Bodenbauer</b><small>St. Ilgen 111, 8621 Thörl · 884 m · parking gratis</small></div></li>
+    </ol>
+    <div class="side">
+      <div class="note warn"><strong>La cocina cierra a las 19:00</strong>Según el horario publicado, cocina de 11:00 a 19:00. Avisadles de la hora de llegada y de que sois 8 para cenar, o pedid que os guarden la cena.</div>
+      <div class="note warn"><strong>El Grüner See en abril está casi vacío</strong>Se llena con el deshielo entre mayo y junio. En abril es normal que tenga poca agua (en 2025 llegó a secarse del todo). Es bonito igual, pero sin la imagen de postal.</div>
+      <div class="note"><strong>Si vais justos de tiempo</strong>Directos de GRZ a Bodenbauer: ~95 km, ~1 h 15.</div>
+    </div>
+  </article>
+
+  <article class="day">
+    <div class="day-h"><div class="dn">15<small>jue</small></div><div><div class="eyebrow">Jueves 15 de abril · día libre</div><h3 style="font-size:1.6rem">Sackwiesensee y vuelta a Viena</h3><div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" data-ic="boot"></svg><svg viewBox="0 0 24 24" data-ic="lake"></svg><svg viewBox="0 0 24 24" data-ic="car"></svg></div></div></div>
+    <ol class="steps">
+      <li><span class="tm">08:00</span><span class="dot"></span><div class="bd"><b>Desayuno (incluido)</b><small>Check-out y maletas al coche</small></div></li>
+      <li class="hike"><span class="tm">09:00</span><span class="dot"></span><div class="bd"><b>Salida a pie desde el parking</b><small>Pista forestal y luego sendero <span class="marker"><i></i><b>840</b><i></i></span> por el Sackwald</small></div></li>
+      <li class="hike"><span class="tm">11:15</span><span class="dot"></span><div class="bd"><b>Sackwiesensee</b><small>Pasando por Häuslalm y Sackwiesenalm (1.458 m). Punto más alto 1.526 m.</small></div></li>
+      <li class="hike"><span class="tm">13:30</span><span class="dot"></span><div class="bd"><b>De vuelta en Bodenbauer, a comer</b><small>Mismo camino de bajada, ~1 h 45</small></div></li>
+      <li class="car"><span class="tm">14:45</span><span class="dot"></span><div class="bd"><b>Conducir a Viena</b><small>~170 km · ~2 h por Kapfenberg, la S6 y el Semmering</small></div></li>
+      <li class="car"><span class="tm">17:00</span><span class="dot"></span><div class="bd"><b>Devolver coche(s) en Viena y check-in en el hotel</b><small>Mejor una oficina en la ciudad, cerca de la oficina de ecosio. Mirad a qué hora cierra.</small></div></li>
+    </ol>
+    <div class="side">
+      <div class="note warn"><strong>Nieve probable a mediados de abril</strong>La ruta sube hasta 1.526 m por bosque. Preguntad en Bodenbauer unos días antes cómo está el sendero: están justo al principio. Llevad botas impermeables y, si hay nieve, crampones ligeros.</div>
+      <div class="note"><strong>Plan B</strong>Hacer solo el primer tramo por la pista forestal del valle. Si el miércoles no dio tiempo, ir al Grüner See por la mañana (está a ~50 min) y salir hacia Viena desde allí.</div>
+    </div>
+  </article>
+
+  <article class="day">
+    <div class="day-h"><div class="dn">16<small>vie</small></div><div><div class="eyebrow">Viernes 16 · sábado 17</div><h3 style="font-size:1.6rem">Viena y vuelta a casa</h3><div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" data-ic="office"></svg><svg viewBox="0 0 24 24" data-ic="plane"></svg></div></div></div>
+    <ol class="steps">
+      <li><span class="tm">09:00</span><span class="dot"></span><div class="bd"><b>Trabajo en la oficina de ecosio</b><small>Desayuno en el hotel</small></div></li>
+      <li><span class="tm">tarde</span><span class="dot"></span><div class="bd"><b>Opción A: al aeropuerto VIE</b><small>Desde Wien Hbf o Wien Mitte, unos 15–25 min en tren</small></div></li>
+      <li><span class="tm">sáb</span><span class="dot"></span><div class="bd"><b>Opción B: vuelo el sábado</b><small>Una noche más de hotel y otra cena en Viena</small></div></li>
+    </ol>
+    <div class="side">
+      <div class="note"><strong>Diferencia entre A y B</strong>La noche del 15 la paga la empresa. La opción B añade la noche del 16, que pagáis vosotros, y una cena para los 8. La calculadora de abajo muestra cuánto supone.</div>
+    </div>
+  </article>
+</section>
+
+<section class="panel hike has-topo">
+  <svg class="topo" id="topoHike" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true"></svg>
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div class="sl">La ruta <span class="marker"><i></i><b>840</b><i></i></span></div>
+    <h2>Vom Bodenbauer zum Sackwiesensee</h2>
+    <div class="stats">
+      <div class="stat"><b>4,9 km</b><span>solo ida</span></div>
+      <div class="stat"><b>+650 m</b><span>desnivel de subida</span></div>
+      <div class="stat"><b>2 h 15</b><span>subida</span></div>
+      <div class="stat"><b>~4 h 30</b><span>ida y vuelta + parada</span></div>
+    </div>
+    <p>Dificultad media según Steiermark Tourismus. Sale del parking de Bodenbauer (884 m) por la pista forestal hasta el primer cruce. Desde ahí sube por el sendero <span class="marker"><i></i><b>840</b><i></i></span> a través del Sackwald hasta la Häuslalmhütte, al pie del Buchbergkogel. Los senderos de largo recorrido <span class="marker"><i></i><b>01</b><i></i></span> y <span class="marker"><i></i><b>05</b><i></i></span> llevan a la Sackwiesenalm (1.458 m). Tras cruzar una loma se llega al lago, el más alto y a la vez el más templado del Hochschwab.</p>
+  </div>
+  <div class="profile">
+    <svg id="prof" viewBox="0 0 460 230" role="img" aria-label="Perfil de altitud: de 884 m en Bodenbauer a 1.526 m de punto más alto y 1.415 m en el lago"></svg>
+    <p class="muted" style="font-size:.8rem">Perfil esquemático: datos de la ficha (inicio, Sackwiesenalm, punto más alto y lago). No es un GPX.</p>
+  </div>
+</section>
+
+<section class="budget" id="presupuesto">
+  <div class="panel" style="min-width:0">
+    <div class="sec-head" style="margin-bottom:14px"><div class="sl">Presupuesto</div><h2>Lo que cuesta la extensión</h2><p class="muted">Solo la extensión, del 14 a la vuelta. No incluye el offsite, el bus de empresa ni los vuelos. Puedes cambiar cualquier precio.</p></div>
+    <div class="controls">
+      <div class="ctl"><span class="lab" id="lab-veh">Vehículo</span><div class="seg" role="group" aria-labelledby="lab-veh"><button type="button" id="veh-van" data-veh="van" aria-pressed="true">Furgoneta 9 plazas</button><button type="button" id="veh-2" data-veh="two" aria-pressed="false">2 coches familiares</button></div></div>
+      <div class="ctl"><span class="lab" id="lab-ret">Vuelta</span><div class="seg" role="group" aria-labelledby="lab-ret"><button type="button" id="ret-16" data-ret="16" aria-pressed="true">Vie 16 tarde</button><button type="button" id="ret-17" data-ret="17" aria-pressed="false">Sáb 17</button></div></div>
+    </div>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Concepto</th><th class="r">Precio</th><th class="r">×</th><th class="r">Total</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    </div>
+  </div>
+  <aside class="panel totals">
+    <div><div class="eyebrow">Total grupo</div><div class="big" id="tot">–</div></div>
+    <div><div class="eyebrow">Por persona</div><div class="pp" id="per">–</div></div>
+    <div class="bar" id="bar"></div>
+    <div class="barleg" id="barleg"></div>
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px">Los 4 escenarios</div>
+      <div class="scen" id="scen"></div>
+    </div>
+    <p class="muted" style="font-size:.82rem">Precios estimados para abril de 2027. Lo que más puede variar: el taxi, el alquiler y el hotel de Viena. Pedid presupuesto real para esos tres.</p>
+  </aside>
+</section>
+
+<section class="panel">
+  <div class="sec-head" style="margin-bottom:10px"><div class="sl">Pendiente</div><h2>Antes de reservar</h2></div>
+  <ul class="todo">
+    <li><div><b>Hora de fin del offsite el 14</b><small>Decide si da tiempo al Grüner See y la hora del taxi.</small></div></li>
+    <li><div><b>Pedir el jueves 15 libre</b><small>Los 8.</small></div></li>
+    <li><div><b>Confirmar Bodenbauer para 8 la noche del 14</b><small>Que abren ese miércoles, la cena a la llegada y cómo van las habitaciones. office@der-bodenbauer.at · +43 3861 8130</small></div></li>
+    <li><div><b>Reservar el coche: GRZ → Viena</b><small>Preguntar el recargo por devolverlo en otra ciudad. Si es furgoneta, que sea la versión larga, porque la normal casi no tiene maletero con 8 personas. Conductores adicionales.</small></div></li>
+    <li><div><b>Presupuesto del taxi spa → GRZ</b><small>Preguntar al hotel (lo gestionan) o a un taxi local. Un intermediario online pedía 551 € por un minibús; un taxi local debería salir bastante más barato.</small></div></li>
+    <li><div><b>Hotel en Viena cerca de la oficina</b><small>La noche del 15 la paga la empresa. La del 16 solo hace falta con la opción B.</small></div></li>
+    <li><div><b>Vuelos de vuelta el 16 o el 17</b><small>Cada uno desde su ciudad.</small></div></li>
+    <li><div><b>Mirar el estado del sendero unos días antes</b><small>Botas y crampones ligeros si hay nieve.</small></div></li>
+  </ul>
+</section>
+
+<footer class="sources">
+  <div class="berg">Berg Heil!</div>
+  <div class="eyebrow">Fuentes</div>
+  <ul>
+    <li><a href="https://www.steiermark.com/en/Hochsteiermark/Plan-your-holiday/Tour-portal/Hike-from-Bodenbauer-to-Sackwiesensee_tour_853669" target="_blank" rel="noopener">Steiermark Tourismus: ruta Bodenbauer–Sackwiesensee</a></li>
+    <li><a href="https://steiermark.com/en/Hochsteiermark/Plan-your-holiday/Excursion-destinations/Alpengasthof-Bodenbauer_isd_280287" target="_blank" rel="noopener">Steiermark Tourismus: Alpengasthof Bodenbauer (horarios)</a></li>
+    <li><a href="https://www.bergwelten.com/h/bodenbauer" target="_blank" rel="noopener">Bergwelten: Bodenbauer</a></li>
+    <li><a href="https://www.sparesortstyria.com/en/hotel/location-directions/" target="_blank" rel="noopener">Spa Resort Styria: cómo llegar</a></li>
+    <li><a href="https://www.steiermark.com/de/Urlaub-planen/Ausflugsziele/Gruener-See_isd_6075903" target="_blank" rel="noopener">Steiermark Tourismus: Grüner See</a></li>
+    <li><a href="https://www.derstandard.at/story/3000000264735/gruener-see-in-der-steiermark-voellig-ausgetrocknet" target="_blank" rel="noopener">Der Standard: el Grüner See, seco en abril de 2025</a></li>
+    <li><a href="https://www.kayak.de/Graz-9-Sitzer-Mietwagen.23261.9-lcv.ksp" target="_blank" rel="noopener">Kayak: furgonetas de 9 plazas en Graz</a></li>
+    <li><a href="https://www.kayak.de/Flughafen-Graz-Mietwagen.GRZ.cap.ksp" target="_blank" rel="noopener">Kayak: alquiler en el aeropuerto de Graz</a></li>
+    <li><a href="https://airportstaxitransfers.com/transportation/taxibookings/Transfer-from-Bad-Waltersdorf-to-Graz" target="_blank" rel="noopener">Traslado Bad Waltersdorf–Graz (intermediario online)</a></li>
+    <li><a href="https://www.benzinpreis-aktuell.de/kraftstoffpreise-europa-oesterreich" target="_blank" rel="noopener">Precios de combustible en Austria</a></li>
+    <li><a href="https://b2b.wien.info/resource/blob/1123506/4c3e311a5e4ba3e9c250d68957e85f73/statistik-april-2026-data.pdf" target="_blank" rel="noopener">Wien Tourismus: estadística de abril de 2026</a></li>
+  </ul>
+</footer>
+
+</div>
+<svg class="ridge-foot" id="ridgeFoot" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e;}
+function mkProj(lon0,lat0,s){const k=Math.cos(47.5*Math.PI/180);return ([lat,lon])=>[(lon-lon0)*k*s,(lat0-lat)*s];}
+function path(pts,P){return pts.map((p,i)=>(i?"L":"M")+P(p).map(v=>v.toFixed(1)).join(" ")).join(" ");}
+
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function ridgeYs(width,step,y0,amp,seed){const r=rng(seed);const ph=[r()*6.28,r()*6.28,r()*6.28,r()*6.28];const peaks=[...Array(5)].map(()=>({x:r()*width,h:.4+r()*.6,w:60+r()*140}));const ys=[];
+  for(let x=0;x<=width;x+=step){let n=.35*Math.sin(x/260+ph[0])+.22*Math.sin(x/110+ph[1])+.1*Math.sin(x/47+ph[2])+.05*Math.sin(x/19+ph[3]);
+    peaks.forEach(p=>{const d=Math.abs(x-p.x)/p.w;n+=p.h*Math.max(0,1-d)*1.1;});ys.push([x,y0-amp*n+(r()-.5)*amp*.06]);}return ys;}
+function topo(svg,cx,cy,n,step,seed,stroke,sw){const r=rng(seed);const p1=r()*6,p2=r()*6,p3=r()*6;
+  for(let i=1;i<=n;i++){let d="";for(let a=0;a<=64;a++){const t=a/64*Math.PI*2;const k=1+.2*Math.sin(2*t+p1+i*.09)+.11*Math.sin(3*t+p2-i*.07)+.05*Math.sin(5*t+p3+i*.13);
+    const x=cx+Math.cos(t)*step*i*k*1.35,y=cy+Math.sin(t)*step*i*k;d+=(a?"L":"M")+x.toFixed(1)+" "+y.toFixed(1);}
+    el("path",{d:d+"Z",fill:"none",stroke,"stroke-width":i%5===0?sw*1.8:sw},svg);}}
+
+/* hero */
+(function(){
+  const svg=document.getElementById("ridges"),W0=1440;
+  el("circle",{cx:1090,cy:70,r:40,fill:"var(--sun)",opacity:.9},svg);
+  const layer=(y0,amp,seed,fill,snowThr)=>{const ys=ridgeYs(W0,12,y0,amp,seed);
+    el("path",{d:"M0 260 "+ys.map(([x,y])=>`L${x} ${y.toFixed(1)}`).join(" ")+` L${W0} 260Z`,fill},svg);
+    if(snowThr){const top=ys.map(([x,y])=>[x,Math.min(y,snowThr+Math.sin(x/23)*4)]);
+      el("path",{d:"M"+top.map(([x,y])=>`${x} ${y.toFixed(1)}`).join(" L")+" "+top.slice().reverse().map(([x])=>`L${x} ${(snowThr+Math.sin(x/23)*4).toFixed(1)}`).join(" ")+"Z",fill:"var(--snow)",opacity:.75},svg);}
+    return ys;};
+  layer(118,78,7,"var(--r1)",78);
+  layer(160,58,21,"var(--r2)",118);
+  const near=layer(206,36,5,"var(--r3)");
+  const r=rng(99);
+  near.forEach(([x,y],i)=>{if(r()<.45)return;const h=12+r()*20,w=h*.42,b=y+4+r()*10;
+    el("path",{d:`M${x} ${b-h} L${x+w} ${b} L${x-w} ${b}Z`,fill:"var(--r4)"},svg);});
+  layer(244,16,13,"var(--bg)");
+  const st=document.getElementById("stars");st.setAttribute("viewBox","0 0 1440 700");st.setAttribute("preserveAspectRatio","xMidYMin slice");
+  const rs=rng(3);for(let i=0;i<110;i++)el("circle",{cx:(rs()*1440).toFixed(0),cy:(rs()*480).toFixed(0),r:(.5+rs()*1.3).toFixed(2),fill:"#ffffff",opacity:(.4+rs()*.6).toFixed(2)},st);
+})();
+/* footer ridge */
+(function(){const svg=document.getElementById("ridgeFoot");
+  [[70,40,31,"var(--r2)"],[96,26,8,"var(--r3)"],[112,10,17,"var(--r4)"]].forEach(([y0,amp,seed,fill])=>{const ys=ridgeYs(1440,16,y0,amp,seed);
+    el("path",{d:"M0 120 "+ys.map(([x,y])=>`L${x} ${y.toFixed(1)}`).join(" ")+" L1440 120Z",fill},svg);});})();
+/* hike topo */
+(function(){const svg=document.getElementById("topoHike");topo(svg,780,300,14,22,11,"var(--topo)",1.1);topo(svg,140,80,7,20,4,"var(--topo)",1.1);})();
+/* icons */
+(function(){const I={
+  car:"M3 15l1.6-4.6A2.2 2.2 0 0 1 6.7 9h10.6a2.2 2.2 0 0 1 2.1 1.4L21 15v3h-2M3 15v3h2M3 15h18M9 18h6",
+  taxi:"M3 15l1.6-4.6A2.2 2.2 0 0 1 6.7 9h10.6a2.2 2.2 0 0 1 2.1 1.4L21 15v3h-2M3 15v3h2M3 15h18M9 18h6M10 5.5h4V9h-4z",
+  boot:"M6 3h6v7l6 2.5a3 3 0 0 1 3 3V18H3v-5l3-2zM3 18v2h18v-2M8 6h4M8 9h4",
+  bed:"M3 19V6M3 13h18v6M21 19v-2M3 17h18M7 13v-1.5A1.5 1.5 0 0 1 8.5 10H11v3",
+  lake:"M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2.5-1.5 4.5-1.5S19 15 21 15M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2.5-1.5 4.5-1.5S19 19 21 19M4 11l4.5-6 3 3.5 2-2.5 5.5 5",
+  office:"M5 21V4h10v17M15 9h4v12M3 21h18M8 8h1M11 8h1M8 12h1M11 12h1M8 16h1M11 16h1",
+  plane:"M3 13l7-1 5-7h2.5l-2.5 7 5 .5 1.5-2.5H22l-1 4 1 4h-1.5L19 15.5l-5 .5 2.5 7H14l-5-7-6-1z"};
+  document.querySelectorAll("svg[data-ic]").forEach(s=>{const k=s.dataset.ic;el("path",{d:I[k],fill:"none",stroke:k==="taxi"?"var(--taxi)":k==="car"?"var(--car)":k==="boot"||k==="lake"?"var(--hike)":"var(--fir)","stroke-width":1.7,"stroke-linecap":"round","stroke-linejoin":"round"},s);});})();
+
+const STY={
+  company:{stroke:"var(--company)","stroke-width":3,"stroke-dasharray":"5 5",fill:"none"},
+  taxi:{stroke:"var(--taxi)","stroke-width":3.5,"stroke-dasharray":"1 6","stroke-linecap":"round",fill:"none"},
+  car:{stroke:"var(--car)","stroke-width":3.5,"stroke-linejoin":"round","stroke-linecap":"round",fill:"none"},
+  hike:{stroke:"var(--hike)","stroke-width":3,"stroke-dasharray":"7 4",fill:"none"},
+  flight:{stroke:"var(--company)","stroke-width":2,"stroke-dasharray":"2 4",fill:"none"}
+};
+
+/* places [lat, lon] */
+const W={vie:[48.1103,16.5697],wien:[48.1986,16.3700],spa:[47.169,16.012],gleis:[47.105,15.708],graz:[47.0707,15.4395],grz:[46.9911,15.4396],
+ frohn:[47.27,15.32],bruck:[47.4106,15.2700],kath:[47.47,15.17],trag:[47.52,15.08],gs:[47.5444,15.0447],kapf:[47.444,15.293],thoerl:[47.520,15.222],
+ ilgen:[47.556,15.157],bb:[47.5802,15.1128],sws:[47.603,15.075],kind:[47.505,15.447],murz:[47.605,15.673],semm:[47.634,15.83],glogg:[47.676,15.94],wrn:[47.81,16.24],
+ hochschwab:[47.618,15.143]};
+
+/* main map */
+(function(){
+  const svg=document.getElementById("map");const P=mkProj(14.85,48.32,430);
+  el("rect",{x:0,y:0,width:540,height:610,fill:"var(--relief)",rx:6},svg);
+  /* faint graticule */
+  for(let lat=47;lat<=48.3;lat+=0.5){const [x1,y]=P([lat,14.85]);el("line",{x1:0,y1:y,x2:540,y2:y,stroke:"var(--line)","stroke-width":1},svg);el("text",{x:6,y:y-4,"font-size":10,fill:"var(--muted)"},svg,lat.toFixed(1)+"°N");}
+  for(let lon=15;lon<=16.5;lon+=0.5){const [x]=P([48,lon]);el("line",{x1:x,y1:0,x2:x,y2:610,stroke:"var(--line)","stroke-width":1},svg);el("text",{x:x+4,y:604,"font-size":10,fill:"var(--muted)"},svg,lon.toFixed(1)+"°E");}
+  /* Hochschwab massif hint */
+  const [hx,hy]=P(W.hochschwab);topo(svg,hx-6,hy+2,7,4.2,11,"var(--fir)",.6);
+  el("text",{x:hx+4,y:hy-26,"font-size":11,fill:"var(--fir)","font-style":"italic"},svg,"Hochschwab");
+  el("text",{x:P(W.semm)[0]-4,y:P(W.semm)[1]+20,"font-size":10.5,fill:"var(--muted)","font-style":"italic"},svg,"Semmering");
+
+  el("path",{d:path([W.vie,W.wien],P),...STY.company},svg);
+  el("path",{d:path([W.wien,[47.9,16.25],[47.5,16.1],W.spa],P),...STY.company},svg);
+  el("path",{d:path([W.spa,W.gleis,W.graz,W.grz],P),...STY.taxi},svg);
+  el("path",{d:path([W.grz,W.graz,W.frohn,W.bruck,W.kath,W.trag,W.gs],P),...STY.car},svg);
+  el("path",{d:path([W.gs,W.trag,W.kath,W.bruck,W.kapf,W.thoerl,W.ilgen,W.bb],P),...STY.car},svg);
+  el("path",{d:path([W.bb,W.ilgen,W.thoerl,W.kapf,W.kind,W.murz,W.semm,W.glogg,W.wrn,W.wien],P),...STY.car},svg);
+
+  const pts=[
+    [W.wien,"Viena · oficina","r",-6,-10],[W.vie,"Aeropuerto VIE","l",0,22],[W.spa,"Spa Resort Styria","l",-10,4],
+    [W.grz,"Aeropuerto Graz","r",12,4],[W.graz,"Graz","l",-10,4],[W.bruck,"Bruck / Kapfenberg","r",12,10],
+    [W.bb,"Bodenbauer","r",12,-6],[W.gs,"Grüner See","r",12,14]];
+  pts.forEach(([p,t,side,dx,dy],i)=>{const [x,y]=P(p);const main=!(t==="Graz"||t.startsWith("Bruck"));
+    el("circle",{cx:x,cy:y,r:main?6:3.5,fill:main?"var(--surface)":"var(--muted)",stroke:main?"var(--ink)":"none","stroke-width":2},svg);
+    el("text",{x:x+dx,y:y+dy,"text-anchor":side==="l"?"end":"start","font-size":main?13.5:11,"font-weight":main?700:400,fill:main?"var(--ink)":"var(--muted)","font-family":"var(--f-body)"},svg,t);});
+  /* day tags */
+  const tag=(p,txt,dx,dy)=>{const [x,y]=P(p);const g=el("g",{},svg);el("rect",{x:x+dx-2,y:y+dy-13,width:txt.length*6.8+12,height:19,rx:9.5,fill:"var(--ink)"},g);el("text",{x:x+dx+4,y:y+dy+1,"font-size":11,"font-weight":700,fill:"var(--bg)"},g,txt);};
+  tag([47.55,16.15],"12 · bus",8,0);
+  tag([47.06,15.75],"14 · taxi",-6,22);
+  tag([47.30,15.30],"14",8,0);
+  tag([47.70,15.95],"15 · ~2 h",-34,-14);
+})();
+
+/* inset */
+(function(){
+  const svg=document.getElementById("inset");const P=mkProj(14.98,47.64,1650);
+  el("rect",{x:0,y:0,width:540,height:400,fill:"var(--relief)",rx:6},svg);
+  const [hx,hy]=P(W.hochschwab);topo(svg,hx-40,hy+20,12,13,11,"var(--topo)",1);
+  el("text",{x:hx-20,y:hy-14,"font-size":12,fill:"var(--fir)","font-style":"italic"},svg,"macizo del Hochschwab");
+  el("path",{d:path([W.kapf,W.bruck,W.kath,W.trag,W.gs],P),...STY.car},svg);
+  el("path",{d:path([W.kapf,W.thoerl,W.ilgen,W.bb],P),...STY.car},svg);
+  el("path",{d:path([W.bb,[47.592,15.098],[47.598,15.085],W.sws],P),...STY.hike},svg);
+  const pts=[[W.gs,"Grüner See","r",10,18,1],[W.trag,"Tragöß","r",10,4,0],[W.bb,"Der Bodenbauer · 884 m","r",12,6,1],[W.sws,"Sackwiesensee · 1.415 m","r",12,-6,1],
+    [W.ilgen,"St. Ilgen","r",10,6,0],[W.thoerl,"Thörl","r",10,6,0],[W.kapf,"Kapfenberg","l",-10,-6,0],[W.bruck,"Bruck an der Mur","l",-10,4,0]];
+  pts.forEach(([p,t,side,dx,dy,main])=>{const [x,y]=P(p);
+    el("circle",{cx:x,cy:y,r:main?6:3.5,fill:main?"var(--surface)":"var(--muted)",stroke:main?"var(--ink)":"none","stroke-width":2},svg);
+    el("text",{x:x+dx,y:y+dy,"text-anchor":side==="l"?"end":"start","font-size":main?13.5:11.5,"font-weight":main?700:400,fill:main?"var(--ink)":"var(--muted)"},svg,t);});
+  const [mx,my]=P([47.55,15.27]);
+  el("text",{x:mx,y:my,"font-size":11,fill:"var(--muted)"},svg,"→ Viena, ~170 km");
+})();
+
+/* elevation profile */
+(function(){
+  const svg=document.getElementById("prof");
+  const L=44,R=450,T=14,B=196, km0=0,km1=4.9, z0=800,z1=1600;
+  const X=k=>L+(k-km0)/(km1-km0)*(R-L), Y=z=>B-(z-z0)/(z1-z0)*(B-T);
+  for(let z=800;z<=1600;z+=200){el("line",{x1:L,y1:Y(z),x2:R,y2:Y(z),stroke:"var(--line)","stroke-width":1},svg);el("text",{x:L-6,y:Y(z)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},svg,z.toLocaleString("es-ES")+" m");}
+  for(let k=0;k<=4;k++){el("text",{x:X(k),y:B+18,"text-anchor":"middle","font-size":11,fill:"var(--muted)"},svg,k+" km");}
+  el("text",{x:X(4.9),y:B+18,"text-anchor":"end","font-size":11,fill:"var(--muted)"},svg,"4,9");
+  /* schematic: start 884, forest road gently, climb, Sackwiesenalm 1458, high 1526, lake 1415 */
+  const pts=[[0,884],[0.8,930],[2.4,1300],[3.4,1458],[4.2,1526],[4.9,1415]];
+  const d=pts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join(" ");
+  el("path",{d:d+` L${X(4.9)} ${B} L${X(0)} ${B} Z`,fill:"var(--fir-soft)"},svg);
+  el("path",{d,fill:"none",stroke:"var(--hike)","stroke-width":3,"stroke-linejoin":"round"},svg);
+  const lab=[[0,884,"Bodenbauer 884","start",6,-10],[3.4,1458,"Sackwiesenalm 1.458","end",-6,-10],[4.2,1526,"1.526","middle",0,-12],[4.9,1415,"Lago 1.415","end",-4,20]];
+  lab.forEach(([k,z,t,a,dx,dy])=>{el("circle",{cx:X(k),cy:Y(z),r:4,fill:"var(--surface)",stroke:"var(--hike)","stroke-width":2},svg);el("text",{x:X(k)+dx,y:Y(z)+dy,"text-anchor":a,"font-size":11.5,"font-weight":700,fill:"var(--ink)"},svg,t);});
+  /* snow band */
+  el("line",{x1:L,y1:Y(1300),x2:R,y2:Y(1300),stroke:"var(--warn)","stroke-width":1.5,"stroke-dasharray":"4 4"},svg);
+  el("text",{x:L+6,y:Y(1300)-6,"font-size":11,fill:"var(--warn)"},svg,"en abril, posible nieve por encima");
+})();
+
+/* budget */
+const N=8;
+const S={veh:"van",ret:"16"};
+/* unit: default price; qty(S) returns multiplier; show(S) */
+const ROWS=[
+  {g:"Traslados"},
+  {id:"taxi",t:"Taxi Spa Resort Styria → aeropuerto de Graz",n:"2 taxis o minibús, ~65 km. Estimación de taxi local; pedir precio.",p:300,q:()=>1,u:"viaje"},
+  {g:"Vehículo"},
+  {id:"van",t:"Furgoneta 9 plazas (versión larga)",n:"Recogida mié ~14:30, devolución jue ~17:00 = 2 días. En Graz, de 73 a 129 €/día.",p:120,q:()=>2,u:"días",veh:"van"},
+  {id:"car",t:"Coche familiar (Kombi), ×2 coches",n:"2 días cada uno. Abril es el mes más caro en GRZ.",p:75,q:()=>4,u:"coche·día",veh:"two"},
+  {id:"oneway",t:"Recargo por devolver en Viena",n:"Varía según compañía (0–150 €). Confirmar al reservar.",p:75,q:s=>s.veh==="van"?1:2,u:"vehículo"},
+  {id:"fuelv",t:"Gasóleo furgoneta",n:"~310 km × 9 l/100 km ≈ 28 l, a ~2,12 €/l",p:2.12,q:()=>28,u:"litros",veh:"van"},
+  {id:"fuelc",t:"Gasolina 2 coches",n:"~310 km × 6,5 l/100 km × 2 ≈ 40 l, a ~1,91 €/l",p:1.91,q:()=>40,u:"litros",veh:"two"},
+  {id:"park",t:"Parking Grüner See",n:"6 € por día y vehículo. La viñeta ya va incluida en los coches de alquiler austriacos.",p:6,q:s=>s.veh==="van"?1:2,u:"vehículo"},
+  {g:"Alojamiento"},
+  {id:"bb",t:"Der Bodenbauer, noche del 14",n:"Precio que os dieron: 80 € por persona y noche con desayuno",p:80,q:()=>N,u:"personas"},
+  {id:"vie1",t:"Hotel Viena, noche del 15",n:"Lo paga la empresa",p:0,q:()=>N,u:"habitaciones"},
+  {id:"vie2",t:"Hotel Viena, noche del 16",n:"Solo si volvéis el sábado. Estimación: individual de 3–4★ con desayuno.",p:120,q:()=>N,u:"habitaciones",ret:"17"},
+  {g:"Comidas"},
+  {id:"din14",t:"Cena mié 14 en Bodenbauer",n:"Cocina regional, precios moderados",p:30,q:()=>N,u:"personas"},
+  {id:"lun15",t:"Comida jue 15 en Bodenbauer",n:"Tras la ruta",p:20,q:()=>N,u:"personas"},
+  {id:"din15",t:"Cena jue 15 en Viena",n:"",p:35,q:()=>N,u:"personas"},
+  {id:"din16",t:"Cena vie 16 en Viena",n:"Solo si volvéis el sábado",p:35,q:()=>N,u:"personas",ret:"17"}
+];
+const CAT={taxi:"Traslados",van:"Vehículo",car:"Vehículo",oneway:"Vehículo",fuelv:"Vehículo",fuelc:"Vehículo",park:"Vehículo",bb:"Alojamiento",vie1:"Alojamiento",vie2:"Alojamiento",din14:"Comidas",lun15:"Comidas",din15:"Comidas",din16:"Comidas"};
+const CATC={"Traslados":"var(--taxi)","Vehículo":"var(--car)","Alojamiento":"var(--fir)","Comidas":"var(--company)"};
+const price={};ROWS.forEach(r=>{if(r.id)price[r.id]=r.p;});
+const eur=v=>v.toLocaleString("es-ES",{maximumFractionDigits:0,useGrouping:"always"})+" €";
+const active=(r,s)=>(!r.veh||r.veh===s.veh)&&(!r.ret||r.ret===s.ret);
+function total(s){let t=0,by={};ROWS.forEach(r=>{if(r.id&&active(r,s)){const v=price[r.id]*r.q(s);t+=v;by[CAT[r.id]]=(by[CAT[r.id]]||0)+v;}});return {t,by};}
+
+const tbody=document.getElementById("rows");
+ROWS.forEach(r=>{const tr=document.createElement("tr");
+  if(r.g){tr.className="grp";tr.innerHTML=`<td colspan="4">${r.g}</td>`;}
+  else{tr.dataset.id=r.id;
+    tr.innerHTML=`<td>${r.t}${r.n?`<small>${r.n}</small>`:""}</td><td class="r"><input class="u" id="p-${r.id}" type="number" min="0" step="${r.p<10?0.01:1}" value="${r.p}" aria-label="Precio unitario: ${r.t}"></td><td class="r num q"></td><td class="r num v"></td>`;}
+  tbody.appendChild(tr);});
+tbody.addEventListener("input",e=>{if(e.target.matches("input.u")){const id=e.target.id.slice(2);price[id]=parseFloat(e.target.value)||0;render();}});
+
+function render(){
+  ROWS.forEach(r=>{if(!r.id)return;const tr=tbody.querySelector(`tr[data-id="${r.id}"]`);const on=active(r,S);tr.classList.toggle("off",!on);
+    if(on){tr.querySelector(".q").textContent=r.q(S)+" "+r.u;tr.querySelector(".v").textContent=eur(price[r.id]*r.q(S));}});
+  const {t,by}=total(S);
+  document.getElementById("tot").textContent=eur(t);
+  document.getElementById("per").textContent=eur(t/N)+" / persona";
+  const bar=document.getElementById("bar"),leg=document.getElementById("barleg");bar.innerHTML="";leg.innerHTML="";
+  Object.keys(CATC).forEach(c=>{if(!by[c])return;const i=document.createElement("i");i.style.width=(by[c]/t*100)+"%";i.style.background=CATC[c];bar.appendChild(i);
+    const s=document.createElement("span");s.style.setProperty("--c",CATC[c]);s.textContent=c+" "+eur(by[c]);leg.appendChild(s);});
+  const sc=document.getElementById("scen");sc.innerHTML='<span class="h">Escenario</span><span class="h r">Total</span><span class="h r">Persona</span>';
+  [["van","16","Furgoneta · vie 16"],["two","16","2 coches · vie 16"],["van","17","Furgoneta · sáb 17"],["two","17","2 coches · sáb 17"]].forEach(([v,r,l])=>{
+    const x=total({veh:v,ret:r}).t;const cur=(v===S.veh&&r===S.ret)?" cur":"";
+    sc.insertAdjacentHTML("beforeend",`<span class="${cur}">${l}</span><span class="r${cur}">${eur(x)}</span><span class="r${cur}">${eur(x/N)}</span>`);});
+  document.querySelectorAll("[data-veh]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.veh===S.veh));
+  document.querySelectorAll("[data-ret]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.ret===S.ret));
+}
+document.querySelectorAll("[data-veh]").forEach(b=>b.addEventListener("click",()=>{S.veh=b.dataset.veh;render();}));
+document.querySelectorAll("[data-ret]").forEach(b=>b.addEventListener("click",()=>{S.ret=b.dataset.ret;render();}));
+render();
+})();
+</script>
+</body>
+</html>
